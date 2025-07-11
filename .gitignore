@@ -6,3 +6,4 @@ creepSim/*
 !creepSim/common/
 mesh/
 NN/**
+.DS_Store
