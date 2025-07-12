@@ -7,3 +7,4 @@ creepSim/*
 mesh/
 NN/**
 .DS_Store
+examples/**
