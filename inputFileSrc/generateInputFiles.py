@@ -43,12 +43,6 @@ if sampleType =='read':
     fileName = secondInput
     selectedSamples = np.genfromtxt(fileName, delimiter=',', skip_header=1)
     
-    # NOTE: The following two lines can be removed if the file is in the sam order as given in the LHS block
-    # Remove the last column, there is some txt in it
-    selectedSamples = selectedSamples[:, :-1]
-    # move the load column to the end to maintain the convention I have used so far
-    selectedSamples = np.hstack([selectedSamples[:, 1:], selectedSamples[:, [0]]])
-    print(selectedSamples)#[selectedSamples[selectedSamples[:, 4] <= selectedSamples[:, 3]]])
 
 # Now create folders and files for each set of parameters and save in relevant folder
 # Loop through each sample in selectedSamples
