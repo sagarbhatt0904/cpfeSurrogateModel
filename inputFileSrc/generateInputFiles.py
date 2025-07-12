@@ -37,7 +37,7 @@ if sampleType == 'LHS':
 
     #enforce \tau_s > \tau_0, this is a hardening material
     selectedSamples = sample_scaled[sample_scaled[:, 4] <= sample_scaled[:, 3]]
-    print(selectedSamples)
+    
 
 if sampleType =='read':
     fileName = secondInput
