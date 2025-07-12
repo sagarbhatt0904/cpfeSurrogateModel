@@ -7,35 +7,52 @@ import sys
 import os
 
 # Check if the correct number of command-line arguments is provided
-if len(sys.argv) != 2:
-    print("Usage: python generateInputFiles.py <num of samples to pick from> ")
+if len(sys.argv) != 3:
+    print("Usage: python generateInputFiles.py LHS <num of samples> \n or \n python generateInputFiles.py read <'fileName'> ")
     sys.exit(1)
 
-N=int(sys.argv[1])
-# Latin hypercube sampling of parameter space
-# Variables in order:
-# a_0, b_0, D_GB,  \tau_s, \tau_0, b, \gamma_0,n
-# Note this paper: https://www.sciencedirect.com/science/article/pii/S0167844216303135#t0005, 
-# gives D_gb numbers for austenitic SS, which is too low
+sampleType = sys.argv[1]
+secondInput=sys.argv[2]
 
-# some in log because they span several orders of magnitude
-upperBounds=[np.log10(4e-3), np.log10(6), np.log10(1e-14), 100, 100, 70, np.log10(1e-5), 14, 300]
-lowerBounds=[np.log10(4e-7), np.log10(6e-4),np.log10(1e-19), 5, 5, 30, np.log10(1e-9), 4, 30]
-log_indices = [0, 1, 2, 6]
-sampler=qmc.LatinHypercube(d=9)
-sample=sampler.random(n=N)
-sample_scaled=qmc.scale(sample, lowerBounds, upperBounds)
-sample_scaled[:, log_indices] = 10 ** sample_scaled[:, log_indices] # get the log values back to linear scale
+if sampleType not in ('LHS', 'read'):
+    print("Incorrect option of sample selection!!!")
+    sys.exit(1)
 
-#enforce \tau_s > \tau_0, this is a hardening material
-filtered_sample = sample_scaled[sample_scaled[:, 4] <= sample_scaled[:, 3]]
+if sampleType == 'LHS':
+    N = int(secondInput)
+    # Latin hypercube sampling of parameter space
+    # Variables in order:
+    # a_0, b_0, D_GB,  \tau_s, \tau_0, b, \gamma_0,n, load
+    # Note this paper: https://www.sciencedirect.com/science/article/pii/S0167844216303135#t0005, 
+    # gives D_gb numbers for austenitic SS, which is too low
 
+    # some in log because they span several orders of magnitude
+    upperBounds=[np.log10(4e-3), np.log10(6), np.log10(1e-14), 100, 100, 70, np.log10(1e-5), 14, 300]
+    lowerBounds=[np.log10(4e-7), np.log10(6e-4),np.log10(1e-19), 5, 5, 30, np.log10(1e-9), 4, 30]
+    log_indices = [0, 1, 2, 6]
+    sampler=qmc.LatinHypercube(d=9)
+    sample=sampler.random(n=N)
+    sample_scaled=qmc.scale(sample, lowerBounds, upperBounds)
+    sample_scaled[:, log_indices] = 10 ** sample_scaled[:, log_indices] # get the log values back to linear scale
+
+    #enforce \tau_s > \tau_0, this is a hardening material
+    selectedSamples = sample_scaled[sample_scaled[:, 4] <= sample_scaled[:, 3]]
+    print(selectedSamples)
+
+if sampleType =='read':
+    fileName = secondInput
+    selectedSamples = np.genfromtxt(fileName, delimiter=',', skip_header=1)
+    
+    # NOTE: The following two lines can be removed if the file is in the sam order as given in the LHS block
+    # Remove the last column, there is some txt in it
+    selectedSamples = selectedSamples[:, :-1]
+    # move the load column to the end to maintain the convention I have used so far
+    selectedSamples = np.hstack([selectedSamples[:, 1:], selectedSamples[:, [0]]])
+    print(selectedSamples)#[selectedSamples[selectedSamples[:, 4] <= selectedSamples[:, 3]]])
 
 # Now create folders and files for each set of parameters and save in relevant folder
-
-
-# Loop through each sample in filtered_sample
-for idx, sample in enumerate(filtered_sample):
+# Loop through each sample in selectedSamples
+for idx, sample in enumerate(selectedSamples):
     folder_name = str(idx)
     os.makedirs(folder_name, exist_ok=True)
 

@@ -10,7 +10,7 @@ export NPROCS=4
 
 i=1
 # Generate input files 
-python "$ROOTDIR/../inputFileSrc/generateInputFiles.py" 6000
+python "$ROOTDIR/../inputFileSrc/generateInputFiles.py" read suggested_training_points.csv
 
 # Define simulation runner function
 run_simulation() {
@@ -34,6 +34,6 @@ run_simulation() {
 
 export -f run_simulation
 
-# Find numeric directories, sort them, and run simulations in parallel (max 12 jobs at a time)
+# Find numeric directories, sort them, and run simulations in parallel (max 7 jobs at a time)
 find . -maxdepth 1 -type d -regex './[0-9]+' | sed 's|./||' | sort -n | \
-    parallel --bar -j 12 run_simulation {} 
+    parallel --bar -j 7 run_simulation {} 
