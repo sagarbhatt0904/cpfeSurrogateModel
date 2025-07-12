@@ -41,8 +41,9 @@ if sampleType == 'LHS':
 
 if sampleType =='read':
     fileName = secondInput
-    selectedSamples = np.genfromtxt(fileName, delimiter=',', skip_header=1)
-    
+    readSamples = np.genfromtxt(fileName, delimiter=',', skip_header=1)
+    #enforce \tau_s > \tau_0, this is a hardening material
+    selectedSamples = readSamples[readSamples[:, 4] <= readSamples[:, 3]]
 
 # Now create folders and files for each set of parameters and save in relevant folder
 # Loop through each sample in selectedSamples
